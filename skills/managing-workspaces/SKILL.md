@@ -101,6 +101,8 @@ When the user wants to prepare a workspace:
          "Bash(gh issue:*)",
          "Bash(gh run:*)",
          "Bash(gh api:*)",
+         "Edit",
+         "Write",
          "Skill(update-config)"
        ],
        "deny": [
