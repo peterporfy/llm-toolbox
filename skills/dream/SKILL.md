@@ -17,10 +17,18 @@ You are performing memory consolidation on the user's `.claude` knowledge base â
 - **Validate against code**: Don't trust timestamps. Read the actual codebase to verify that documented patterns, file paths, structures, and conventions still hold.
 - **Restructure freely**: Merge files, split files, rename, create new ones. Whatever produces the clearest, most scannable knowledge base.
 - **Cross-reference**: Files can reference each other. Keep a clear information hierarchy.
-- **Update CLAUDE.md**: Always keep both `~/.claude/CLAUDE.md` (global, doc references) and `~/.claude/vault/CLAUDE.md` (rules source) in sync with the current file structure.
+- **Update CLAUDE.md**: Always keep `~/.claude/vault/CLAUDE.md` in sync with the current file structure as you add, remove, or rename files.
 - **Create skills if warranted**: If a recurring workflow pattern emerges from the docs, extract it into a skill file.
 
 ## Workflow
+
+### 0. Setup
+
+Start by asking the user:
+
+> Where is your source directory? (e.g. `~/src/` or `~/base/src/`)
+
+Use this as the root when verifying factual claims against code in step 2.
 
 ### 1. Inventory
 
@@ -85,8 +93,7 @@ Apply the approved changes:
 - **Drop**: Delete files that are entirely obsolete
 - **Rewrite**: Tighten prose â€” remove filler, compress lists, simplify explanations while preserving meaning
 - **Cross-reference**: Add `See also: [FILE.md]` links where helpful
-- **Update CLAUDE.md**: Ensure all file references are current, add/remove entries as needed
-- **Update global CLAUDE.md**: When adding or removing .md files in `vault/`, also update `~/.claude/CLAUDE.md` to reflect the change, using `vault/FILENAME.md` path format.
+- **Update CLAUDE.md**: Ensure all file references in `~/.claude/vault/CLAUDE.md` are current, add/remove entries as needed.
 
 When rewriting, aim for:
 - Scannable headers and short paragraphs

@@ -17,3 +17,5 @@ Shared Claude Code skills and tooling, stored in `~/base/src/llm-toolbox/` (Drop
 Skills are in `~/.claude/skills/`. Shared skills are symlinked from `~/base/src/llm-toolbox/skills/`; local (machine-specific) skills are real directories there.
 
 See `~/base/src/dotfiles/AGENTS.md` → "Claude Code Setup" for setup instructions.
+
+See `VAULT_MEMORY_SYSTEM.md` for an overview of the vault — what it contains, and how `reflect-on-tickets` and `dream` keep it up to date.

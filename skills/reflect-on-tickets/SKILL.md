@@ -24,9 +24,13 @@ This skill is **additive only**. It harvests and accumulates knowledge. It does 
 
 ### 1. Discovery
 
-Find all ticket workspaces and their `.claude` folders:
+Start by asking the user:
 
-- Use the `LS` tool on `~/work/` to find ticket directories (e.g., `ads-*`, `oct-*`)
+> Where are your ticket workspaces? (e.g. `~/work/`)
+
+Then find all ticket workspaces and their `.claude` folders:
+
+- Use the `LS` tool on the provided directory to find ticket directories
 - Use `Glob` to find `.claude` folders within them
 
 **Important**: Always prefer the built-in `LS`, `Read`, `Glob`, and `Grep` tools over `Bash` for file listing, reading, and searching. They are pre-approved and don't require user confirmation. Avoid compound bash commands with `&&`, `||`, or pipes.
