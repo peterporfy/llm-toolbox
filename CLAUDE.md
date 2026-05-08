@@ -1,6 +1,4 @@
-# LLM Toolbox
-
-Shared Claude Code skills and tooling, stored in `~/base/src/llm-toolbox/` (Dropbox) and used across machines.
+# Personal system prompt
 
 ## Most important rules
 
@@ -11,6 +9,7 @@ Shared Claude Code skills and tooling, stored in `~/base/src/llm-toolbox/` (Drop
 5. Do not make unnecessary comments where you just comment what is obvious from the code.
 6. Always maintain contextual information and development state in appropriate files under the `.claude` folder. This is not necessarily the cwd - might be up one or more levels. Usually an existing PLAN.md, STATE.md or a CLAUDE.md. If you are not sure (or there are multiple options) ask me at the beginning.
 7. Always maintain a CHANGELOG.md in the local `.claude` - containing an append only log summary of any code change with a datetime.
+8. Never assume you need to code right away. Unless I explicitly say to do changes, refrain from it. When I am just asking questions that is part of the thinking.
 
 ## Skills
 

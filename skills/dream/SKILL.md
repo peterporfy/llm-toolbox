@@ -9,7 +9,9 @@ You are performing memory consolidation on the user's `.claude` knowledge base �
 
 ## Scope
 
-**Only** operates on `~/.claude/vault/*.md` files. Does not touch ticket workspace folders.
+Operates on the entire `~/.claude/vault/` tree:
+- `~/.claude/vault/*.md` — top-level domain and structure docs (primary)
+- `~/.claude/vault/*/` — any subdirectory (sessions, design_docs, incidents, workspaces, etc.) — harvested for cross-cutting knowledge; subdirectory files are not restructured in place
 
 ## Core Principles
 
@@ -36,6 +38,7 @@ Read all `.md` files in `~/.claude/vault/`:
 
 - Use the `LS` tool to list the directory contents
 - Use the `Read` tool to read each `.md` file
+- Also recursively list all subdirectories in `~/.claude/vault/` and read their markdown files
 
 **Important**: Always prefer the built-in `LS`, `Read`, `Glob`, and `Grep` tools over `Bash` for file listing, reading, and searching. They are pre-approved and don't require user confirmation. Avoid compound bash commands with `&&`, `||`, or pipes.
 
@@ -45,6 +48,7 @@ Read each file. Build a mental map of:
 - What feels stale or overly specific
 - What's missing cross-references
 - Overall size and complexity
+- What cross-cutting knowledge in sessions hasn't yet been promoted to top-level docs
 
 ### 2. Validate Against Code
 
@@ -57,6 +61,17 @@ For each factual claim (file paths, directory structures, enum values, API patte
 **Be thorough here.** This is the most important phase. Don't skip verification just because something sounds plausible.
 
 If you can't verify a claim (e.g., references a system you don't have access to), flag it but keep it — don't silently drop unverifiable facts.
+
+### 2b. Harvest Subdirectories
+
+For each subdirectory found in `~/.claude/vault/` (sessions, design_docs, incidents, workspaces, etc.):
+
+- Read all markdown files within it
+- Identify cross-cutting knowledge (patterns, gotchas, architectural decisions, conventions) that belongs in top-level domain docs but hasn't been promoted yet
+- Subdirectory files are **input only** — do not restructure or rewrite them in place
+- For session folders specifically: check the last-modified time of all files using `ls -lt`. If all files in a session are older than ~1 month and all reusable knowledge has already been promoted, flag it as a **stale session** candidate for deletion — but only propose this in the plan and only delete after explicit user approval
+
+Add any promotable knowledge and stale session candidates to the restructure plan in step 3.
 
 ### 3. Plan Restructure
 
@@ -77,6 +92,10 @@ Before making changes, present a restructuring plan to the user:
 - **Drop**: LEGACY_PATTERNS.md — all patterns confirmed obsolete
 - **Create skill**: Recurring "sync enum across repos" workflow → new skill
 
+### Sessions:
+- ads-123: PLAN.md has caching pattern not yet in top-level docs → promote to CLICKHOUSE_DEV.md
+- research-auth: all knowledge promoted, last modified 2025-12-01 (5 months ago) → candidate for deletion
+
 ### Estimated result:
 - 10 files, ~900 lines total
 ```
@@ -93,6 +112,8 @@ Apply the approved changes:
 - **Drop**: Delete files that are entirely obsolete
 - **Rewrite**: Tighten prose — remove filler, compress lists, simplify explanations while preserving meaning
 - **Cross-reference**: Add `See also: [FILE.md]` links where helpful
+- **Promote from sessions**: Extract cross-cutting knowledge from session files into appropriate top-level docs
+- **Delete stale sessions** (if approved): Remove session folders that have had no file modifications for 1+ month and whose knowledge has been fully promoted — never delete a recently-touched session
 - **Update CLAUDE.md**: Ensure all file references in `~/.claude/vault/CLAUDE.md` are current, add/remove entries as needed.
 
 When rewriting, aim for:
@@ -127,6 +148,11 @@ Ask the user before creating new skills.
 - ✅ Dropped LEGACY_PATTERNS.md (all patterns obsolete)
 - ✅ Created skill: sync-enum-across-repos
 - ✅ Updated CLAUDE.md references
+
+### Sessions:
+- ✅ Promoted caching pattern from ads-123/PLAN.md → CLICKHOUSE_DEV.md
+- ✅ Deleted research-auth (all knowledge promoted, untouched for 5 months)
+- ⏭️ ads-456 still active — left untouched
 
 ### Verified against code:
 - 34 factual claims checked
