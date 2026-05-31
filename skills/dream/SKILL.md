@@ -1,197 +1,190 @@
 ---
 name: dream
-description: Distill, compress, and restructure top-level .claude documentation. Validates knowledge against actual code, removes staleness and redundancy, and produces a tighter knowledge base. Use when docs feel bloated or stale. Keywords: dream, distill, compress, simplify, clean up docs, restructure.
+description: Memory consolidation for the ~/.claude/vault knowledge base. Reconciles a flat vault into the layered system, validates knowledge against actual code, promotes/demotes/archives across layers using timestamps, and keeps the indexes current — always plan-first, never destructive without approval. Use when docs feel bloated or stale, or to migrate the vault to the layered structure. Keywords: dream, distill, compress, consolidate, reorganize, layered, promote, demote, archive, clean up docs.
 ---
 
 # Dream Skill
 
-You are performing memory consolidation on the user's `.claude` knowledge base — like a brain during sleep. Your job is to consolidate, compress, forget the unimportant, and strengthen the important.
+You are performing memory consolidation on the user's `~/.claude/vault/` knowledge base — like a brain during sleep. Consolidate, compress, forget the unimportant, strengthen the important — and keep verified facts intact.
 
-## Scope
+You are **plan-first and non-destructive by default**: present a plan, wait for approval, and never move or delete anything (especially sessions) without explicit confirmation. **Timestamps are your safety rail** — recent and active work is protected.
 
-Operates on the entire `~/.claude/vault/` tree:
-- `~/.claude/vault/*.md` — top-level domain and structure docs (primary)
-- `~/.claude/vault/*/` — any subdirectory (sessions, design_docs, incidents, workspaces, etc.) — harvested for cross-cutting knowledge; subdirectory files are not restructured in place
+## Layered Vault Model
+
+| Layer | Name | Auto-loaded | Location | Contents |
+|------|------|-------------|----------|----------|
+| 0 | Active | ✅ always | `CLAUDE.md`, `SESSIONS.md`, `sessions/` | Index + active/recent sessions |
+| 1 | Warm | 🔁 on demand | `layer1/` | Domain docs, referenced by name in `CLAUDE.md` |
+| 2 | Cold | ❌ never | `layer2/sessions/`, `layer2/` | Archived sessions, old design docs |
+| 3 | Limbo | ❌ never | `layer3/DELETED.md` | Deletion log only |
+
+Only layer 0 loads automatically. Everything else requires explicit intent.
 
 ## Core Principles
 
-- **Lossy but fact-careful**: You can drop noise, redundancy, and outdated patterns. But never silently drop or alter factual claims — verify them first.
-- **Validate against code**: Don't trust timestamps. Read the actual codebase to verify that documented patterns, file paths, structures, and conventions still hold.
-- **Restructure freely**: Merge files, split files, rename, create new ones. Whatever produces the clearest, most scannable knowledge base.
-- **Cross-reference**: Files can reference each other. Keep a clear information hierarchy.
-- **Update CLAUDE.md**: Always keep `~/.claude/vault/CLAUDE.md` in sync with the current file structure as you add, remove, or rename files.
-- **Create skills if warranted**: If a recurring workflow pattern emerges from the docs, extract it into a skill file.
+- **Lossy but fact-careful**: Drop noise, redundancy, and outdated patterns freely. Never silently drop or alter a factual claim — verify it first.
+- **Validate against code**: Don't trust written dates or prose. Read the actual codebase to confirm documented paths, structures, and conventions still hold.
+- **Timestamps decide recency**: Use real file mtimes (`ls -lt`), not the dates written inside files. Recent/active sessions are off-limits.
+- **Plan-first**: Promotion, demotion, archival, and deletion are always proposed, never automatic. Present the plan and wait.
+- **Restructure freely (layer1)**: Merge, split, rename, create layer1 docs to produce the clearest knowledge base. Session files are input only — never rewritten in place.
+- **Keep indexes in sync**: After any change, update `CLAUDE.md` (layer1 table + active sessions) and `SESSIONS.md` (status + timestamps).
+
+**Tooling note**: Prefer the built-in `LS`, `Read`, `Glob`, and `Grep` tools over `Bash` for listing, reading, and searching — they are pre-approved. Use `ls -lt` only to read modification times. Avoid compound bash commands with `&&`, `||`, or pipes.
 
 ## Workflow
 
 ### 0. Setup
 
-Start by asking the user:
+Ask the user:
 
 > Where is your source directory? (e.g. `~/src/` or `~/base/src/`)
 
-Use this as the root when verifying factual claims against code in step 2.
+Use this as the root when verifying factual claims against code.
 
-### 1. Inventory
+### 1. Detect Structure
 
-Read all `.md` files in `~/.claude/vault/`:
+List `~/.claude/vault/`. Decide which mode you're in:
 
-- Use the `LS` tool to list the directory contents
-- Use the `Read` tool to read each `.md` file
-- Also recursively list all subdirectories in `~/.claude/vault/` and read their markdown files
+- **Layered** — `layer1/` exists → this is a steady-state run. Skip to step 3 (Inventory) and run the full lifecycle.
+- **Flat / legacy** — top-level `*.md` domain docs and a `sessions/` folder, no `layer1/` → run the **Migration** in step 2 first, then continue.
 
-**Important**: Always prefer the built-in `LS`, `Read`, `Glob`, and `Grep` tools over `Bash` for file listing, reading, and searching. They are pre-approved and don't require user confirmation. Avoid compound bash commands with `&&`, `||`, or pipes.
+### 2. Migration (flat → layered, one-time)
 
-Read each file. Build a mental map of:
-- What knowledge exists
-- Where there's overlap or redundancy
-- What feels stale or overly specific
-- What's missing cross-references
-- Overall size and complexity
-- What cross-cutting knowledge in sessions hasn't yet been promoted to top-level docs
+Reconcile the existing vault into the layered structure **without disturbing recent or active work**.
 
-### 2. Validate Against Code
+1. **Inventory + timestamp everything.** Read every top-level `*.md` and every folder under `sessions/`. Record real mtimes with `ls -lt`.
+2. **Protect recent/active sessions.** A session is **protected** if its status is `active` (per any existing index / its CLAUDE.md) **or** any file in it was modified within ~1 month. Protected sessions are **never moved or rewritten** — they stay in `sessions/`.
+3. **Classify top-level domain docs** → layer1 candidates. These become `layer1/*.md`.
+4. **Classify sessions:**
+   - Protected → stay in `sessions/` (layer 0).
+   - Done + untouched ~1 month, knowledge already captured → `layer2/sessions/{name}/` (cold).
+5. **Build `SESSIONS.md`** from each session's own files (name, created date, last-active = newest mtime, domain, status, one-line summary).
+6. **Scaffold layers**: create `layer1/`, `layer2/sessions/`, `layer3/DELETED.md` as needed.
+7. Fold all of this into the Dream Plan (step 4). **Nothing moves until approved.**
 
-For each factual claim (file paths, directory structures, enum values, API patterns, naming conventions, config locations):
+### 3. Inventory & Validate
 
-- **Read the actual source code** to verify it's still true
-- Use the `Read` tool on referenced files and directories
-- Mark claims as: ✅ verified, ❌ outdated, or ❓ can't verify
+Build a complete picture, then verify it.
 
-**Be thorough here.** This is the most important phase. Don't skip verification just because something sounds plausible.
+- Read all layer 0 + layer 1 docs; scan layer 2 for promotable knowledge. Note overlap, redundancy, staleness, missing cross-references, overall size.
+- For each factual claim (file paths, directory structures, enum values, API patterns, naming conventions, config locations): **read the actual source code** under the user's source dir and mark it ✅ verified, ❌ outdated, or ❓ can't verify.
+- Be thorough — this is the most important phase. If you can't verify a claim, **flag it but keep it**; never silently drop unverifiable facts.
 
-If you can't verify a claim (e.g., references a system you don't have access to), flag it but keep it — don't silently drop unverifiable facts.
+### 4. Plan (the Dream Plan)
 
-### 2b. Harvest Subdirectories
-
-For each subdirectory found in `~/.claude/vault/` (sessions, design_docs, incidents, workspaces, etc.):
-
-- Read all markdown files within it
-- Identify cross-cutting knowledge (patterns, gotchas, architectural decisions, conventions) that belongs in top-level domain docs but hasn't been promoted yet
-- Subdirectory files are **input only** — do not restructure or rewrite them in place
-- For session folders specifically: check the last-modified time of all files using `ls -lt`. If all files in a session are older than ~1 month and all reusable knowledge has already been promoted, flag it as a **stale session** candidate for deletion — but only propose this in the plan and only delete after explicit user approval
-
-Add any promotable knowledge and stale session candidates to the restructure plan in step 3.
-
-### 3. Plan Restructure
-
-Before making changes, present a restructuring plan to the user:
+Present the plan and wait for confirmation:
 
 ```markdown
 ## Dream Plan
 
-### Current state:
-- 12 files, ~1400 lines total
-- KHEPRI_STRUCTURE.md and EVENTS.md overlap on event routing (40% duplicate)
-- DATA_PLATFORM_STRUCTURE.md references removed dbt models
+### Migration (if flat vault):
+- Move 6 top-level docs → layer1/
+- Archive ads-123, oct-44 → layer2/sessions/ (done, untouched 2+ months)
+- Protected (left in place): ads-456 (active), incident-2026-05 (touched 5 days ago)
+- Build SESSIONS.md from 8 sessions
 
-### Proposed changes:
-- **Merge**: EVENTS.md + event sections from KHEPRI_STRUCTURE.md → EVENTS.md
-- **Trim**: Remove 3 outdated file path references in DATA_PLATFORM_STRUCTURE.md
-- **Split**: AD_FORMATS.md is 600 lines → AD_FORMATS.md (overview) + AD_FORMAT_SYNC.md (cross-repo sync details)
-- **Drop**: LEGACY_PATTERNS.md — all patterns confirmed obsolete
-- **Create skill**: Recurring "sync enum across repos" workflow → new skill
+### Promotions (layer2 → layer1):
+- ADMOB_OAUTH.md — referenced by 2 recent sessions → promote?
 
-### Sessions:
-- ads-123: PLAN.md has caching pattern not yet in top-level docs → promote to CLICKHOUSE_DEV.md
-- research-auth: all knowledge promoted, last modified 2025-12-01 (5 months ago) → candidate for deletion
+### Demotions (layer1 → layer2):
+- LEGACY_ADAPTERS.md — untouched 4 months, no recent sessions → archive?
+
+### Compaction:
+- CLICKHOUSE.md + EVENTS.md overlap on pipeline routing → merge?
+
+### Harvest from sessions:
+- ads-456/PLAN.md has a caching pattern not yet in layer1 → promote to CLICKHOUSE.md
+
+### Limbo candidates:
+- research-auth — all knowledge promoted, untouched 6 months → delete?
+
+### Index updates:
+- ads-456: active → done; ads-123: done → archived
+
+### Verified against code:
+- 34 claims checked — 31 ✅, 3 ❌ (removed), 0 ❓
 
 ### Estimated result:
-- 10 files, ~900 lines total
+- Before: 8 layer1 files, ~1200 lines, 12 sessions
+- After: 6 layer1 files, ~800 lines, 10 sessions
 ```
 
-Wait for user confirmation before proceeding.
+Limbo (deletion) candidates require **explicit, per-item confirmation**.
 
-### 4. Execute
+### 5. Execute
 
 Apply the approved changes:
 
-- **Merge**: Combine related content, eliminate duplication, keep the best version of each piece of knowledge
-- **Trim**: Remove verified-outdated information
-- **Split**: Break large files into focused sub-files
-- **Drop**: Delete files that are entirely obsolete
-- **Rewrite**: Tighten prose — remove filler, compress lists, simplify explanations while preserving meaning
-- **Cross-reference**: Add `See also: [FILE.md]` links where helpful
-- **Promote from sessions**: Extract cross-cutting knowledge from session files into appropriate top-level docs
-- **Delete stale sessions** (if approved): Remove session folders that have had no file modifications for 1+ month and whose knowledge has been fully promoted — never delete a recently-touched session
-- **Update CLAUDE.md**: Ensure all file references in `~/.claude/vault/CLAUDE.md` are current, add/remove entries as needed.
+- **Migrate**: create layers, move classified docs/sessions. Protected sessions stay put.
+- **Promote** (layer2 → layer1): surface a cold doc when recent sessions show renewed relevance.
+- **Demote** (layer1 → layer2): move a layer1 doc untouched for months with no recent session references.
+- **Harvest**: extract cross-cutting knowledge from active/done sessions into the right layer1 doc (session files stay as input only).
+- **Compact / reorg**: merge overlapping docs, trim verified-outdated content, split oversized docs, tighten prose, add `See also:` cross-references.
+- **Archive**: move done + stale sessions → `layer2/sessions/`.
+- **Limbo** (only if approved per item): remove the item and append a line to `layer3/DELETED.md` (`{YYYY-MM-DD} - {what} - {why}`).
+- **Update indexes**: refresh `CLAUDE.md` (layer1 table + active sessions) and `SESSIONS.md` (status + `Last active`).
 
-When rewriting, aim for:
-- Scannable headers and short paragraphs
-- Code examples only when they add clarity
-- Facts over commentary
-- Patterns over instances
+When rewriting layer1, aim for scannable headers, short paragraphs, facts over commentary, patterns over instances, code examples only when they add clarity.
 
-### 5. Create Skills (If Warranted)
+### 6. Create Skills (If Warranted)
 
-If you notice a recurring workflow pattern documented across multiple files, consider extracting it into a skill:
+If a recurring workflow pattern emerges across docs/sessions, offer to extract it into a skill (frontmatter + structured markdown, same format as existing skills), add it to the skills directory, and reference it from `CLAUDE.md`. **Ask before creating.**
 
-- The pattern should be something the user would want to invoke repeatedly
-- Write it in the same format as existing skills (frontmatter + structured markdown)
-- Add it to the appropriate skills directory
-- Reference it from `CLAUDE.md`
-
-Ask the user before creating new skills.
-
-### 6. Summary
+### 7. Summary
 
 ```markdown
 ## Dream Summary
 
-### Before: 12 files, ~1400 lines
-### After: 10 files, ~900 lines
+### Before: 8 layer1 files, ~1200 lines, 12 sessions
+### After: 6 layer1 files, ~800 lines, 10 sessions
 
 ### Changes:
-- ✅ Merged EVENTS.md + event routing from KHEPRI_STRUCTURE.md
-- ✅ Trimmed 3 outdated references in DATA_PLATFORM_STRUCTURE.md
-- ✅ Split AD_FORMATS.md into overview + sync docs
-- ✅ Dropped LEGACY_PATTERNS.md (all patterns obsolete)
-- ✅ Created skill: sync-enum-across-repos
-- ✅ Updated CLAUDE.md references
+- ✅ Migrated flat vault → layers (6 docs → layer1, 2 sessions → layer2)
+- ✅ Merged EVENTS.md routing into CLICKHOUSE.md
+- ✅ Promoted ADMOB_OAUTH.md → layer1 (renewed relevance)
+- ✅ Demoted LEGACY_ADAPTERS.md → layer2 (stale)
+- ✅ Updated CLAUDE.md + SESSIONS.md
 
 ### Sessions:
-- ✅ Promoted caching pattern from ads-123/PLAN.md → CLICKHOUSE_DEV.md
-- ✅ Deleted research-auth (all knowledge promoted, untouched for 5 months)
-- ⏭️ ads-456 still active — left untouched
+- ✅ Archived ads-123 → layer2/sessions/
+- ⏭️ ads-456 active — left untouched
+- 🗑️ research-auth → limbo (approved; logged in layer3/DELETED.md)
 
-### Verified against code:
-- 34 factual claims checked
-- 31 verified ✅
-- 3 outdated and removed ❌
-
-### Flagged (couldn't verify):
-- ⚠️ ClickHouse cluster config — no access to prod config
+### Verified against code: 34 claims — 31 ✅, 3 ❌ removed
+### Flagged (couldn't verify): ⚠️ ClickHouse cluster config — no prod access
 ```
+
+## Index Formats
+
+**`~/.claude/vault/CLAUDE.md`** (layer 0 index):
+
+```markdown
+# Vault
+
+## Active sessions
+sessions/ads-456/
+
+## Layer 1 — Domain docs
+| File | Covers |
+|------|--------|
+| layer1/CLICKHOUSE.md | ClickHouse schema, query patterns, gotchas |
+| layer1/EVENTS.md | Kafka event pipeline, Avro schemas |
+```
+
+**`~/.claude/vault/SESSIONS.md`** — see the `manage-sessions` skill for the column layout.
 
 ## Guidelines
 
-### What to compress
-- Redundant explanations of the same concept across files
-- Verbose descriptions that can be tightened
-- Examples that illustrate the same point
-- Historical context that's no longer actionable
+**Compress**: redundant explanations across files, verbose prose, duplicate examples, non-actionable history.
+**Preserve**: verified facts (paths, structures, conventions), non-obvious gotchas, cross-repo dependencies, anything painful to re-learn.
+**Drop**: patterns verified outdated against code, info obvious from reading the code, over-specific details that belong in code comments.
 
-### What to preserve
-- Verified factual claims (paths, structures, conventions)
-- Non-obvious gotchas and constraints
-- Cross-repo dependency information
-- Anything that would be painful to re-learn
-
-### What to drop
-- Patterns verified as outdated against current code
-- Information that duplicates what's obvious from reading the code itself
-- Overly specific implementation details that belong in code comments, not docs
-
-### When to ask the user
-- Before executing the restructure plan
-- When a factual claim can't be verified and seems important
-- Before creating new skills
-- When two docs contradict each other
-- When you're unsure if something is noise or important context
+**Ask the user**: before executing the plan; before any limbo deletion; before creating skills; when two docs contradict; when a claim can't be verified but seems important; when unsure whether something is noise or real context.
 
 ## Error Handling
 
-- **No .claude folder**: Inform the user
-- **Empty or near-empty docs**: Suggest running `reflect` first to populate them
-- **Can't access referenced repos**: Flag unverifiable claims, don't drop them
-- **Everything looks clean**: Say so — don't restructure for the sake of it
+- **No vault folder**: inform the user.
+- **Empty / near-empty vault**: say so; suggest running sessions first to populate it.
+- **Can't access referenced repos**: flag unverifiable claims, don't drop them.
+- **Everything looks clean**: say so — don't restructure for its own sake.
+- **Recent/active session in the way**: never touch it; note it as protected in the summary.
