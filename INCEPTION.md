@@ -20,9 +20,9 @@ No daemon. No database. No MCP server. Just markdown files, synced however you l
 
 ```
 ~/.claude/vault/
-├── CLAUDE.md          ← always loaded: index + active session reference
+├── CLAUDE.md          ← always loaded: vault index
 ├── SESSIONS.md        ← always loaded: session index with timestamps
-├── sessions/          ← active / recent sessions (layer 0)
+├── sessions/          ← active / recent session bodies (layer 0; loaded on demand, never all at once)
 │   └── {name}/
 ├── layer1/            ← warm: domain docs, loaded on demand
 │   ├── CLICKHOUSE.md
@@ -37,12 +37,13 @@ No daemon. No database. No MCP server. Just markdown files, synced however you l
 
 | Layer | Name | Auto-loaded | Contents |
 |------|------|-------------|----------|
-| 0 | Active | ✅ always | `CLAUDE.md`, `SESSIONS.md`, active/recent sessions |
-| 1 | Warm | 🔁 on demand | Domain docs, referenced by name in `CLAUDE.md` |
+| 0 | Index | ✅ always | `CLAUDE.md`, `SESSIONS.md` — the indexes, and the **only** auto-loaded files |
+| 0 | Sessions | 🔁 on demand | `sessions/` — active/recent session bodies, loaded one at a time when you start/resume |
+| 1 | Warm | 🔁 on demand | `layer1/` domain docs, referenced by name in `CLAUDE.md` |
 | 2 | Cold | ❌ never | Archived sessions, old design docs |
 | 3 | Limbo | ❌ never | Deletion log only |
 
-Only layer 0 is loaded into context automatically. Everything else requires explicit intent — the user asks, or a session declares its domain at start.
+Only the two indexes (`CLAUDE.md`, `SESSIONS.md`) load automatically — they stay small. Session bodies and layer1 docs load **on demand**: the user resumes a session, or names a domain. Nothing else enters context unless asked. This keeps the always-on footprint tiny no matter how many sessions accumulate.
 
 ---
 

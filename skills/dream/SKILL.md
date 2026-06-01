@@ -13,12 +13,13 @@ You are **plan-first and non-destructive by default**: present a plan, wait for 
 
 | Layer | Name | Auto-loaded | Location | Contents |
 |------|------|-------------|----------|----------|
-| 0 | Active | ✅ always | `CLAUDE.md`, `SESSIONS.md`, `sessions/` | Index + active/recent sessions |
+| 0 | Index | ✅ always | `CLAUDE.md`, `SESSIONS.md` | The indexes — the only auto-loaded files |
+| 0 | Sessions | 🔁 on demand | `sessions/` | Active/recent session bodies, loaded one at a time |
 | 1 | Warm | 🔁 on demand | `layer1/` | Domain docs, referenced by name in `CLAUDE.md` |
 | 2 | Cold | ❌ never | `layer2/sessions/`, `layer2/` | Archived sessions, old design docs |
 | 3 | Limbo | ❌ never | `layer3/DELETED.md` | Deletion log only |
 
-Only layer 0 loads automatically. Everything else requires explicit intent.
+Only the two indexes auto-load — keep them small. Session bodies and layer1 docs load on demand; layer2/3 never. When you update indexes (step 5), keep `CLAUDE.md` and `SESSIONS.md` tight enough to stay cheap to always load.
 
 ## Core Principles
 
