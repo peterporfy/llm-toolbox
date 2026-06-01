@@ -80,27 +80,27 @@ Present the plan and wait for confirmation:
 
 ### Migration (if flat vault):
 - Move 6 top-level docs → layer1/
-- Archive ads-123, oct-44 → layer2/sessions/ (done, untouched 2+ months)
-- Protected (left in place): ads-456 (active), incident-2026-05 (touched 5 days ago)
+- Archive ticket-123, ticket-789 → layer2/sessions/ (done, untouched 2+ months)
+- Protected (left in place): ticket-456 (active), incident-2026-05 (touched 5 days ago)
 - Build SESSIONS.md from 8 sessions
 
 ### Promotions (layer2 → layer1):
-- ADMOB_OAUTH.md — referenced by 2 recent sessions → promote?
+- AUTH.md — referenced by 2 recent sessions → promote?
 
 ### Demotions (layer1 → layer2):
-- LEGACY_ADAPTERS.md — untouched 4 months, no recent sessions → archive?
+- LEGACY_PARSERS.md — untouched 4 months, no recent sessions → archive?
 
 ### Compaction:
-- CLICKHOUSE.md + EVENTS.md overlap on pipeline routing → merge?
+- PAYMENTS.md + EVENTS.md overlap on event routing → merge?
 
 ### Harvest from sessions:
-- ads-456/PLAN.md has a caching pattern not yet in layer1 → promote to CLICKHOUSE.md
+- ticket-456/PLAN.md has a caching pattern not yet in layer1 → promote to PAYMENTS.md
 
 ### Limbo candidates:
 - research-auth — all knowledge promoted, untouched 6 months → delete?
 
 ### Index updates:
-- ads-456: active → done; ads-123: done → archived
+- ticket-456: active → done; ticket-123: done → archived
 
 ### Verified against code:
 - 34 claims checked — 31 ✅, 3 ❌ (removed), 0 ❓
@@ -141,18 +141,18 @@ If a recurring workflow pattern emerges across docs/sessions, offer to extract i
 
 ### Changes:
 - ✅ Migrated flat vault → layers (6 docs → layer1, 2 sessions → layer2)
-- ✅ Merged EVENTS.md routing into CLICKHOUSE.md
-- ✅ Promoted ADMOB_OAUTH.md → layer1 (renewed relevance)
-- ✅ Demoted LEGACY_ADAPTERS.md → layer2 (stale)
+- ✅ Merged EVENTS.md routing into PAYMENTS.md
+- ✅ Promoted AUTH.md → layer1 (renewed relevance)
+- ✅ Demoted LEGACY_PARSERS.md → layer2 (stale)
 - ✅ Updated CLAUDE.md + SESSIONS.md
 
 ### Sessions:
-- ✅ Archived ads-123 → layer2/sessions/
-- ⏭️ ads-456 active — left untouched
+- ✅ Archived ticket-123 → layer2/sessions/
+- ⏭️ ticket-456 active — left untouched
 - 🗑️ research-auth → limbo (approved; logged in layer3/DELETED.md)
 
 ### Verified against code: 34 claims — 31 ✅, 3 ❌ removed
-### Flagged (couldn't verify): ⚠️ ClickHouse cluster config — no prod access
+### Flagged (couldn't verify): ⚠️ database cluster config — no prod access
 ```
 
 ## Index Formats
@@ -163,13 +163,13 @@ If a recurring workflow pattern emerges across docs/sessions, offer to extract i
 # Vault
 
 ## Active sessions
-sessions/ads-456/
+sessions/ticket-456/
 
 ## Layer 1 — Domain docs
 | File | Covers |
 |------|--------|
-| layer1/CLICKHOUSE.md | ClickHouse schema, query patterns, gotchas |
-| layer1/EVENTS.md | Kafka event pipeline, Avro schemas |
+| layer1/PAYMENTS.md | Payment flow, providers, retry/idempotency |
+| layer1/EVENTS.md | Event pipeline, message schemas |
 ```
 
 **`~/.claude/vault/SESSIONS.md`** — see the `manage-sessions` skill for the column layout.

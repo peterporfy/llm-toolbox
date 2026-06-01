@@ -9,7 +9,7 @@ You are helping the user extract reusable, non-ticket-specific knowledge from co
 
 ## Overview
 
-This skill scans ticket workspace folders (e.g., `ads-1/`, `ads-2/`, `oct-123/`) for their `.claude` directories, identifies useful cross-cutting knowledge, and adds it to `~/.claude/vault/`.
+This skill scans ticket workspace folders (e.g., `ticket-1/`, `ticket-2/`, `ticket-123/`) for their `.claude` directories, identifies useful cross-cutting knowledge, and adds it to `~/.claude/vault/`.
 
 This skill is **additive only**. It harvests and accumulates knowledge. It does not restructure, validate, or compress existing documentation — that's the job of the `dream` skill.
 
@@ -75,7 +75,7 @@ When unsure if something is reusable, ask the user:
 
 Add knowledge to the appropriate file:
 - Domain docs: `~/.claude/vault/EVENTS.md`, `~/.claude/vault/MONEY.md`, `~/.claude/vault/PERMISSIONS.md`, etc.
-- Repo structure docs: `~/.claude/vault/KHEPRI_STRUCTURE.md`, `~/.claude/vault/PURCHASES_IOS_STRUCTURE.md`, etc.
+- Repo structure docs: `~/.claude/vault/BACKEND_STRUCTURE.md`, `~/.claude/vault/MOBILE_STRUCTURE.md`, etc.
 - New files if nothing fits — add a reference in both `~/.claude/vault/CLAUDE.md` and `~/.claude/CLAUDE.md` (using `vault/FILENAME.md` path)
 
 When adding:
@@ -85,7 +85,7 @@ When adding:
 
 ### 5. Create Workspace Summaries
 
-For each ticket processed, create a per-ticket summary at `~/.claude/vault/workspaces/{TICKET-ID}.md` (e.g., `workspaces/ADS-123.md`). If a workspace covers multiple tickets, create one file per ticket.
+For each ticket processed, create a per-ticket summary at `~/.claude/vault/workspaces/{TICKET-ID}.md` (e.g., `workspaces/TICKET-123.md`). If a workspace covers multiple tickets, create one file per ticket.
 
 **What to include** (keep it short — aim for under 30 lines):
 - One-liner title/goal of the ticket
@@ -116,7 +116,7 @@ A reverse-chronological log of completed ticket workspaces.
 
 ---
 
-YYYY.MM.DD. ADS-123 - [title]
+YYYY.MM.DD. TICKET-123 - [title]
 ```
 
 ### 6. Summary
@@ -126,17 +126,17 @@ Report concisely:
 ```markdown
 ## Reflection Summary
 
-**Tickets Reviewed**: ads-1, ads-2
+**Tickets Reviewed**: ticket-1, ticket-2
 **Files Examined**: 8
 
 ### Added:
-- Updated `~/.claude/vault/KHEPRI_STRUCTURE.md`: Added ad_format field handling pattern
-- Created `~/.claude/vault/AD_FORMATS.md`: Consolidated enum docs across repos
-- Created `~/.claude/vault/workspaces/ADS-1.md`: Workspace summary
-- Updated `~/.claude/vault/WORKSPACES.md`: Added log entry for ADS-1
+- Updated `~/.claude/vault/PAYMENTS.md`: Added provider retry/idempotency pattern
+- Created `~/.claude/vault/EVENTS.md`: Consolidated event schema docs across repos
+- Created `~/.claude/vault/workspaces/TICKET-1.md`: Workspace summary
+- Updated `~/.claude/vault/WORKSPACES.md`: Added log entry for TICKET-1
 
 ### Skipped:
-- ads-2 STATE.md: Only ticket-specific implementation details
+- ticket-2 STATE.md: Only ticket-specific implementation details
 
 ### Suggestion:
 - Docs are growing large — consider running `dream` to distill

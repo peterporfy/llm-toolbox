@@ -4,19 +4,19 @@
 
 **Tagline:** One vault. Infinite depth. No infra.
 
-> Inception is the planned name for the standalone version of this system (two skills + this description). For now it lives here in `llm-toolbox` and operates on the existing vault at `~/.claude/vault/`.
-
 ---
 
 ## Concept
 
-A Claude Code memory system built on two skills and a markdown vault. It borrows its structure from the film: memories exist in layers, and the `dream` skill takes you deeper — consolidating, compacting, and reorganizing knowledge across layers.
+A Claude Code memory system built on two skills and a markdown vault. Knowledge lives in layers, and the `dream` skill consolidates, compacts, and reorganizes it across those layers.
 
-No daemon. No database. No MCP server. Just markdown files, synced however you like (Dropbox, Google Drive, iCloud, git).
+No daemon. No database. No MCP server. Just markdown files, synced however you like (Dropbox, Google Drive, iCloud, git). Because it's plain markdown in a plain folder, the whole vault stays human-readable: open it in any editor, grep it, or browse it in a file tree — view and search it by hand whenever you want, no tooling required.
 
 ---
 
 ## Vault Structure
+
+We call the memory storage folder the **Vault** — the single directory that holds everything: the indexes, the sessions, and all the layered domain docs. Point it anywhere your sync of choice can reach; the default is `~/.claude/vault/`.
 
 ```
 ~/.claude/vault/
@@ -25,7 +25,7 @@ No daemon. No database. No MCP server. Just markdown files, synced however you l
 ├── sessions/          ← active / recent session bodies (layer 0; loaded on demand, never all at once)
 │   └── {name}/
 ├── layer1/            ← warm: domain docs, loaded on demand
-│   ├── CLICKHOUSE.md
+│   ├── PAYMENTS.md
 │   └── EVENTS.md
 ├── layer2/            ← cold: archived sessions + old design docs, searchable not auto-loaded
 │   └── sessions/
@@ -53,13 +53,13 @@ Only the two indexes (`CLAUDE.md`, `SESSIONS.md`) load automatically — they st
 # Vault
 
 ## Active sessions
-sessions/ads-456/
+sessions/ticket-456/
 
 ## Layer 1 — Domain docs
 | File | Covers |
 |------|--------|
-| layer1/CLICKHOUSE.md | ClickHouse schema, query patterns, gotchas |
-| layer1/EVENTS.md | Kafka event pipeline, Avro schemas |
+| layer1/PAYMENTS.md | Payment flow, providers, retry/idempotency |
+| layer1/EVENTS.md | Event pipeline, message schemas |
 ```
 
 ## SESSIONS.md Format (session index)
@@ -69,8 +69,8 @@ sessions/ads-456/
 
 | Session | Created | Last active | Domain | Status | Summary |
 |---------|---------|-------------|--------|--------|---------|
-| ads-456 | 2026-05 | 2026-05-30 | ClickHouse, Kafka | active | Mediation report ingestion |
-| ads-123 | 2026-03 | 2026-03-18 | AdMob OAuth | done | Token refresh debugging |
+| ticket-456 | 2026-05 | 2026-05-30 | Payments, Events | active | Payment report ingestion |
+| ticket-123 | 2026-03 | 2026-03-18 | Auth | done | OAuth token refresh debugging |
 | research-auth | 2025-12 | 2025-12-01 | Auth | archived | Promoted to layer1 |
 ```
 
@@ -84,7 +84,7 @@ Statuses: `active` → `done` → `archived` → (limbo).
 
 - Creates sessions at `~/.claude/vault/sessions/{name}/` (layer 0 while active/recent).
 - Reads `SESSIONS.md` first on start/resume; writes a row on both; tracks `Created` and `Last active`.
-- Accepts an optional domain hint at start (*"new session ads-456, ClickHouse focus"*) → preloads matching layer1 docs.
+- Accepts an optional domain hint at start (*"new session ticket-456, payments focus"*) → preloads matching layer1 docs.
 - Only touches layer 0 (`sessions/` + `SESSIONS.md`). Archival is the `dream` skill's job.
 
 ### dream

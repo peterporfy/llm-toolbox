@@ -1,6 +1,6 @@
 ---
 name: manage-sessions
-description: Create or resume a vault session — a persistent working context stored in ~/.claude/vault/sessions/{name}/. Reads the SESSIONS.md index, tracks timestamps, and can preload layer1 domain docs from a domain hint. Use when the user wants to start or continue a focused work session (ticket, research, investigation, etc.). Keywords: new session, start session, resume session, load session, session, ads-, oct-.
+description: Create or resume a vault session — a persistent working context stored in ~/.claude/vault/sessions/{name}/. Reads the SESSIONS.md index, tracks timestamps, and can preload layer1 domain docs from a domain hint. Use when the user wants to start or continue a focused work session (ticket, research, investigation, etc.). Keywords: new session, start session, resume session, load session, session, ticket-.
 ---
 
 # Manage Sessions Skill
@@ -25,10 +25,10 @@ If the intent is ambiguous, check whether `~/.claude/vault/sessions/{name}/` exi
 ## START Workflow
 
 1. **Parse the user's request:**
-   - Extract the session name if mentioned (e.g., `ads-123`, `research-caching`, `incident-2026-05`)
+   - Extract the session name if mentioned (e.g., `ticket-123`, `research-caching`, `incident-2026-05`)
    - Use lowercase, hyphenated names
    - If no name given, ask for one
-   - Note any **domain hint** in the request (e.g., "new session ads-456, ClickHouse focus")
+   - Note any **domain hint** in the request (e.g., "new session ticket-456, payments focus")
 
 2. **Ask for goal** (single AskUserQuestion if not already clear):
    - What is the goal / purpose of this session? (one or two sentences)
@@ -149,8 +149,8 @@ If the intent is ambiguous, check whether `~/.claude/vault/sessions/{name}/` exi
 
 | Session | Created | Last active | Domain | Status | Summary |
 |---------|---------|-------------|--------|--------|---------|
-| ads-456 | 2026-05 | 2026-05-30 | ClickHouse, Kafka | active | Mediation report ingestion |
-| ads-123 | 2026-03 | 2026-03-18 | AdMob OAuth | done | Token refresh debugging |
+| ticket-456 | 2026-05 | 2026-05-30 | Payments, Events | active | Payment report ingestion |
+| ticket-123 | 2026-03 | 2026-03-18 | Auth | done | OAuth token refresh debugging |
 | research-auth | 2025-12 | 2025-12-01 | Auth | archived | Promoted to layer1 |
 ```
 
