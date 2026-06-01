@@ -61,7 +61,8 @@ Reconcile the existing vault into the layered structure **without disturbing rec
    - Done + untouched ~1 month, knowledge already captured → `layer2/sessions/{name}/` (cold).
 5. **Build `SESSIONS.md`** from each session's own files (name, created date, last-active = newest mtime, domain, status, one-line summary).
 6. **Scaffold layers**: create `layer1/`, `layer2/sessions/`, `layer3/DELETED.md` as needed.
-7. Fold all of this into the Dream Plan (step 4). **Nothing moves until approved.**
+7. **Wire the index**: ensure `~/.claude/vault/CLAUDE.md` `@`-imports `SESSIONS.md` (add an `@SESSIONS.md` line if absent) so the session index auto-loads. If the user's global `~/.claude/CLAUDE.md` doesn't yet import `vault/CLAUDE.md`, flag it in the plan — that import is what makes layer 0 load at all.
+8. Fold all of this into the Dream Plan (step 4). **Nothing moves until approved.**
 
 ### 3. Inventory & Validate
 
@@ -162,6 +163,8 @@ If a recurring workflow pattern emerges across docs/sessions, offer to extract i
 ```markdown
 # Vault
 
+@SESSIONS.md
+
 ## Active sessions
 sessions/ticket-456/
 
@@ -171,6 +174,8 @@ sessions/ticket-456/
 | layer1/PAYMENTS.md | Payment flow, providers, retry/idempotency |
 | layer1/EVENTS.md | Event pipeline, message schemas |
 ```
+
+The `@SESSIONS.md` import is what keeps the session index auto-loaded alongside `CLAUDE.md`.
 
 **`~/.claude/vault/SESSIONS.md`** — see the `manage-sessions` skill for the column layout.
 

@@ -52,6 +52,8 @@ Only the two indexes (`CLAUDE.md`, `SESSIONS.md`) load automatically — they st
 ```markdown
 # Vault
 
+@SESSIONS.md
+
 ## Active sessions
 sessions/ticket-456/
 
@@ -61,6 +63,8 @@ sessions/ticket-456/
 | layer1/PAYMENTS.md | Payment flow, providers, retry/idempotency |
 | layer1/EVENTS.md | Event pipeline, message schemas |
 ```
+
+`CLAUDE.md` `@`-imports `SESSIONS.md` so both indexes load together as layer 0.
 
 ## SESSIONS.md Format (session index)
 
@@ -119,6 +123,16 @@ layer3: limbo / deletion log
 ```
 
 Promotion is always suggested, never automatic — dream presents a plan and waits for confirmation. Timestamps decide what is recent (protected) versus stale (archivable); `dream` trusts real file mtimes over written dates.
+
+---
+
+## Setup
+
+1. Make the two skills available to Claude Code (`manage-sessions`, `dream`) — e.g. symlink or copy them into `~/.claude/skills/`.
+2. Create the vault folder (default `~/.claude/vault/`) and point it at your sync of choice.
+3. **Wire layer 0 to auto-load.** Layer 0 only loads if your global `~/.claude/CLAUDE.md` imports the vault index — add `@vault/CLAUDE.md`. In turn, `vault/CLAUDE.md` imports the session index with `@SESSIONS.md`. Without these imports the vault is inert: nothing loads automatically.
+
+On an existing flat vault, run `dream` once — it migrates the vault into layers, builds `SESSIONS.md`, and adds the `@SESSIONS.md` import for you, all plan-first.
 
 ---
 

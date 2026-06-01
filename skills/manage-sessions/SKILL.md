@@ -18,7 +18,7 @@ Sessions are **layer 0** in the vault: active and recent work lives at the top l
 
 If the intent is ambiguous, check whether `~/.claude/vault/sessions/{name}/` exists — if it does, default to RESUME.
 
-**Always read `~/.claude/vault/SESSIONS.md` first** to see what sessions exist and their status before deciding.
+**Always read `~/.claude/vault/SESSIONS.md` first** to see what sessions exist and their status before deciding. If it doesn't exist yet (first use on an existing vault), create it with just the header + empty table from the format below, then proceed.
 
 ---
 
@@ -153,6 +153,8 @@ If the intent is ambiguous, check whether `~/.claude/vault/sessions/{name}/` exi
 | ticket-123 | 2026-03 | 2026-03-18 | Auth | done | OAuth token refresh debugging |
 | research-auth | 2025-12 | 2025-12-01 | Auth | archived | Promoted to layer1 |
 ```
+
+If the file is missing, create it with the `# Sessions` header and the empty column row (no data rows) before adding the first session.
 
 Statuses: `active` → `done` → `archived` → (limbo). This skill only sets `active` (on create/resume) and `done` (when the user says the work is finished). `archived` and limbo are handled by `dream`.
 
