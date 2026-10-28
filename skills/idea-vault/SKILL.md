@@ -11,7 +11,7 @@ This system is **standalone**. It does not read, write, or reference any other v
 
 ## Principle: build understanding, don't just satisfy the ask
 
-When creating or connecting ideas, the goal is not "what will make the user happy with this note." It's "what is actually true and interesting about this, and what does it connect to." Draw connections the user didn't ask for if they're real. Disagree with an earlier idea in a new one if experience contradicts it, rather than quietly overwriting it to stay tidy — contradictions are signal, and sleep is where they get resolved.
+When creating or connecting ideas, the goal is not "what will make the user happy with this note." It's "what is actually true and interesting about this, and what does it connect to." Draw connections the user didn't ask for if they're real — and only if they're real; a connection is never owed just because a sleep cycle is running. Disagree with an earlier idea in a new one if experience contradicts it, rather than quietly overwriting it to stay tidy — contradictions are signal, and sleep is where they get resolved.
 
 This is also not a specialized persona. No "senior engineer" or "reviewer" framing lives here — that belongs in a task-specific skill, at most. This vault is the substrate underneath any of that: whatever it's built from is just what's been lived through.
 
@@ -89,17 +89,7 @@ Dreaming about an idea (revisiting it during sleep) counts as a recall and, if i
 - **Two ways to find something: check the map, or search the territory.** Read `INDEX.md` first — it's fast and surfaces well-connected, frequently-relevant ideas by cluster. But it is not comprehensive and isn't meant to be: most ideas that exist are NOT in it. If the index doesn't resolve it, grep `ideas/*.md` directly (filenames, frontmatter `tags`, titles) — that directory, not the index, is the actual complete store. Failing to find something in the index is normal, not a sign the index is broken.
 - **INDEX.md is a curated shortcut, not a registry.** The file is a set of clusters (topic groupings that emerge from the ideas themselves, not a fixed taxonomy), each holding a plain `- [gist](path)` line — but only for ideas worth surfacing as an entry point: highly-connected hubs, frequently-recalled ideas, or cluster anchors that help someone orient. A new idea does NOT automatically get a line here — most ideas live only in `ideas/`, reachable by grep or by being linked from another idea, and that's the intended steady state, not a gap. Whether a given idea earns an index line is a judgment call made at sleep (§5), not at creation time. Tags, dates, and recall/change counts live only in each idea's own frontmatter, never duplicated into the index.
 - **No exact match → create.** If there's no idea for what's being worked on (say, a specific piece of ongoing work), create one. It can link to other ideas as they become relevant — plans, decisions, whatever the work actually produces. What that new idea should reference, and how finely it should eventually be split apart, is a judgment call each time, not a fixed template.
-- **Recall and change are tracked, but not by you.** After touching an idea (reading it into context, or editing it), dispatch a cheap, fire-and-forget stat update — bookkeeping is beneath the ideas themselves:
-  ```
-  Agent({
-    model: "haiku",
-    description: "bump idea stats",
-    prompt: "In <vault>/ideas/{slug}.md, update frontmatter: set last_recalled or
-    last_changed to {date}, increment recall_count or change_count by 1.
-    Mechanical only — do not touch the idea's prose. Do not touch INDEX.md —
-    whether an idea earns an index entry is decided at sleep, not on creation."
-  })
-  ```
+- **Recall and change are tracked, inline.** After touching an idea (reading it into context, or editing it), bump its frontmatter yourself in the same turn: set `last_recalled` or `last_changed` to today and increment `recall_count` or `change_count` by 1. Mechanical only — do not touch the idea's prose, and do not touch `INDEX.md`; whether an idea earns an index entry is decided at sleep, not on creation. (This used to be dispatched to a haiku sub-agent; in practice those bumps did not land, so the counters drifted.)
 - **buffer.md is the running present.** Append a short, timestamped line whenever something happens worth remembering short-term — an idea created, a connection drawn, something that contradicted an earlier idea, an observation about the work itself:
   ```
   - {date} {time} — {what happened, referencing [[slug]] where relevant}
@@ -133,7 +123,7 @@ Handled by the full model, not the cheap subagent — this is judgment work, not
 5. **Clear `buffer.md`.** Its contents are now absorbed or deliberately dropped — don't archive it verbatim, that defeats the point.
 6. **Log one line to `sleep.md`**: date, rough shape of what changed (new ideas, merges, splits, prunes, stale claims caught).
 7. **Release the lock** and set `last_slept: {now}`.
-8. Say briefly what changed.
+8. Say briefly what changed, including the links considered and rejected — so the judgment is visible, not just the additions.
 
 ## 6. Feeding it existing material (explicit only)
 
